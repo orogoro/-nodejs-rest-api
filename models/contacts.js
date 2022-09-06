@@ -19,7 +19,11 @@ const getContactById = async (contactId) => {
     const getContactFilterById = JSON.parse(data).filter(
       (item) => item.id === contactId
     );
-    // console.log(getContactFilterById);
+
+    if (getContactFilterById.length === 0) {
+      return;
+    }
+
     return getContactFilterById;
   } catch (error) {
     console.log(error);
@@ -29,14 +33,22 @@ const getContactById = async (contactId) => {
 const removeContact = async (contactId) => {
   try {
     const data = await fs.readFile(contactsPath, 'utf8');
+    const parseData = JSON.parse(data);
 
-    const removeContactFilterById = JSON.parse(data).filter(
+    const findById = parseData.some((item) => item.id === contactId);
+
+    if (!findById) {
+      return;
+    }
+
+    const removeContactFilterById = parseData.filter(
       (item) => item.id !== contactId
     );
 
     const stringifyContacts = JSON.stringify(removeContactFilterById);
-
     await fs.writeFile(contactsPath, stringifyContacts, 'utf8');
+
+    return removeContactFilterById;
   } catch (error) {
     console.log(error);
   }
@@ -59,31 +71,53 @@ const addContact = async (body) => {
 
     const stringifyContacts = JSON.stringify(newMass);
     await fs.writeFile(contactsPath, stringifyContacts, 'utf8');
+
+    return newContact;
   } catch (error) {
     console.log(error);
   }
 };
 
 const updateContact = async (contactId, body) => {
+  // const { name, email, phone } = body;
   try {
     const data = await fs.readFile(contactsPath, 'utf8');
     const parseData = JSON.parse(data);
 
     const contactById = parseData.find((item) => item.id === contactId);
 
+    if (!contactById) {
+      return;
+    }
+
     const updeateContactInformation = { ...contactById, ...body };
 
     const newData = parseData.map((item) => {
       if (item.id === contactId) {
-        const newContact = { ...item, ...updeateContactInformation };
-        return newContact;
+        return updeateContactInformation;
       }
-
       return item;
     });
 
+    // const newData = parseData.map((item) => {
+    //   if (item.id === contactId) {
+    //     item.name = name;
+    //     item.email = email;
+    //     item.phone = phone;
+    //   }
+
+    //   if (item.id !== contactId) {
+    //     return undefined
+    //   }
+
+    //   return item;
+    // });
+    // console.log(newData);
+
     const stringifyContact = JSON.stringify(newData);
     await fs.writeFile(contactsPath, stringifyContact, 'utf8');
+
+    return updeateContactInformation;
   } catch (error) {
     console.log(error);
   }
