@@ -28,7 +28,6 @@ router.get('/:contactId', async (req, res, next) => {
   try {
     const id = req.params.contactId;
     const contact = await getContactById(id);
-    console.log(contact);
 
     if (!contact) {
       return res.status(404).json({ message: 'Not found' });
@@ -56,6 +55,7 @@ router.delete('/:contactId', async (req, res, next) => {
   try {
     const id = req.params.contactId;
     const contact = await removeContact(id);
+    console.log(contact);
 
     if (!contact) {
       return res.status(404).json({ message: 'Not found' });
