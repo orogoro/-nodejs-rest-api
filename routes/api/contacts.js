@@ -1,8 +1,11 @@
 const e = require('express');
 const express = require('express');
-const Joi = require('joi');
-
 const router = express.Router();
+
+const {
+  addPostValidation,
+  addPutValidation,
+} = require('../../middlewares/validationMiddlewares');
 
 const {
   listContacts,
@@ -37,26 +40,9 @@ router.get('/:contactId', async (req, res, next) => {
   }
 });
 
-router.post('/', async (req, res, next) => {
+router.post('/', addPostValidation, async (req, res, next) => {
   try {
     const body = req.body;
-
-    const schema = Joi.object({
-      name: Joi.string().alphanum().min(3).max(30).required(),
-      email: Joi.string()
-        .email({
-          minDomainSegments: 2,
-          tlds: { allow: ['com', 'net'] },
-        })
-        .required(),
-      phone: Joi.string().alphanum().min(7).max(10).required(),
-    });
-
-    const validationResult = schema.validate(body);
-
-    if (validationResult.error) {
-      return res.status(400).json({ message: 'missing required name field' });
-    }
 
     const newContact = await addContact(body);
 
@@ -81,27 +67,10 @@ router.delete('/:contactId', async (req, res, next) => {
   }
 });
 
-router.put('/:contactId', async (req, res, next) => {
+router.put('/:contactId', addPutValidation, async (req, res, next) => {
   try {
     const id = req.params.contactId;
     const body = req.body;
-
-    const schema = Joi.object({
-      name: Joi.string().alphanum().min(3).max(30).optional(),
-      email: Joi.string()
-        .email({
-          minDomainSegments: 2,
-          tlds: { allow: ['com', 'net'] },
-        })
-        .optional(),
-      phone: Joi.string().alphanum().min(7).max(10).optional(),
-    }).min(1);
-
-    const validationResult = schema.validate(body);
-
-    if (validationResult.error) {
-      return res.status(400).json({ message: 'missing fields' });
-    }
 
     const contact = await updateContact(id, body);
 
