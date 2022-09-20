@@ -1,12 +1,13 @@
-const fs = require('fs/promises');
+const fs = require('fs').promises;
 const path = require('path');
+const { Post } = require('../db/postModel');
 
 const contactsPath = path.resolve('./models/contacts.json');
 
 const listContacts = async () => {
   try {
-    const data = await fs.readFile(contactsPath, 'utf8');
-    return JSON.parse(data);
+    const data = await Post.find();
+    return data;
   } catch (error) {
     console.log(error);
   }

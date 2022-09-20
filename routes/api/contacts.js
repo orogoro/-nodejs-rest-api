@@ -1,6 +1,7 @@
 const e = require('express');
 const express = require('express');
 const router = express.Router();
+// const { Post } = require('../../db/postModel');
 
 const {
   addPostValidation,
