@@ -1,12 +1,8 @@
-const fs = require('fs').promises;
-const path = require('path');
 const { Post } = require('../db/postModel');
-
-const contactsPath = path.resolve('./models/contacts.json');
 
 const listContacts = async () => {
   try {
-    const data = await Post.find();
+    const data = await Post.find({});
     return data;
   } catch (error) {
     console.log(error);
@@ -15,16 +11,9 @@ const listContacts = async () => {
 
 const getContactById = async (contactId) => {
   try {
-    const data = await fs.readFile(contactsPath, 'utf8');
-    const getContactFilterById = JSON.parse(data).filter(
-      (item) => item.id === contactId
-    );
+    const findById = await Post.findById(contactId);
 
-    if (getContactFilterById.length === 0) {
-      return;
-    }
-
-    return getContactFilterById;
+    return findById;
   } catch (error) {
     console.log(error);
   }
@@ -32,23 +21,8 @@ const getContactById = async (contactId) => {
 
 const removeContact = async (contactId) => {
   try {
-    const data = await fs.readFile(contactsPath, 'utf8');
-    const parseData = JSON.parse(data);
-
-    const findById = parseData.some((item) => item.id === contactId);
-
-    if (!findById) {
-      return;
-    }
-
-    const removeContactFilterById = parseData.filter(
-      (item) => item.id !== contactId
-    );
-
-    const stringifyContacts = JSON.stringify(removeContactFilterById);
-    await fs.writeFile(contactsPath, stringifyContacts, 'utf8');
-
-    return removeContactFilterById;
+    const removeContactById = await Post.findByIdAndRemove(contactId);
+    return removeContactById;
   } catch (error) {
     console.log(error);
   }
@@ -57,20 +31,8 @@ const removeContact = async (contactId) => {
 const addContact = async (body) => {
   const { name, email, phone } = body;
   try {
-    const data = await fs.readFile(contactsPath, 'utf8');
-
-    const parseData = JSON.parse(data);
-    const lastId = parseData.slice(-1)[0].id;
-    const newContact = {
-      id: (Number(lastId) + 1).toString(),
-      name,
-      email,
-      phone,
-    };
-    const newMass = [...parseData, newContact];
-
-    const stringifyContacts = JSON.stringify(newMass);
-    await fs.writeFile(contactsPath, stringifyContacts, 'utf8');
+    const newContact = new Post({ name, email, phone });
+    await newContact.save();
 
     return newContact;
   } catch (error) {
@@ -81,43 +43,28 @@ const addContact = async (body) => {
 const updateContact = async (contactId, body) => {
   // const { name, email, phone } = body;
   try {
-    const data = await fs.readFile(contactsPath, 'utf8');
-    const parseData = JSON.parse(data);
-
-    const contactById = parseData.find((item) => item.id === contactId);
-
-    if (!contactById) {
-      return;
-    }
-
-    const updeateContactInformation = { ...contactById, ...body };
-
-    const newData = parseData.map((item) => {
-      if (item.id === contactId) {
-        return updeateContactInformation;
-      }
-      return item;
+    const updatePost = await Post.findByIdAndUpdate(contactId, body, {
+      new: true,
     });
 
-    // const newData = parseData.map((item) => {
-    //   if (item.id === contactId) {
-    //     item.name = name;
-    //     item.email = email;
-    //     item.phone = phone;
-    //   }
+    return updatePost;
+  } catch (error) {
+    console.log(error);
+  }
+};
 
-    //   if (item.id !== contactId) {
-    //     return undefined
-    //   }
+const updateStatusContact = async (contactId, body) => {
+  const { favorite } = body;
+  try {
+    const updatePost = await Post.findByIdAndUpdate(
+      contactId,
+      { favorite },
+      {
+        new: true,
+      }
+    );
 
-    //   return item;
-    // });
-    // console.log(newData);
-
-    const stringifyContact = JSON.stringify(newData);
-    await fs.writeFile(contactsPath, stringifyContact, 'utf8');
-
-    return updeateContactInformation;
+    return updatePost;
   } catch (error) {
     console.log(error);
   }
@@ -129,4 +76,5 @@ module.exports = {
   removeContact,
   addContact,
   updateContact,
+  updateStatusContact,
 };
