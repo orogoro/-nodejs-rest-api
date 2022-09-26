@@ -1,8 +1,8 @@
-const { Post } = require('../db/postModel');
+const { Contacts } = require('../db/postModel');
 
 const listContacts = async () => {
   try {
-    const data = await Post.find({});
+    const data = await Contacts.find({});
     return data;
   } catch (error) {
     console.log(error);
@@ -11,7 +11,7 @@ const listContacts = async () => {
 
 const getContactById = async (contactId) => {
   try {
-    const findById = await Post.findById(contactId);
+    const findById = await Contacts.findById(contactId);
 
     return findById;
   } catch (error) {
@@ -21,7 +21,7 @@ const getContactById = async (contactId) => {
 
 const removeContact = async (contactId) => {
   try {
-    const removeContactById = await Post.findByIdAndRemove(contactId);
+    const removeContactById = await Contacts.findByIdAndRemove(contactId);
     return removeContactById;
   } catch (error) {
     console.log(error);
@@ -31,7 +31,7 @@ const removeContact = async (contactId) => {
 const addContact = async (body) => {
   const { name, email, phone } = body;
   try {
-    const newContact = new Post({ name, email, phone });
+    const newContact = new Contacts({ name, email, phone });
     await newContact.save();
 
     return newContact;
@@ -43,7 +43,7 @@ const addContact = async (body) => {
 const updateContact = async (contactId, body) => {
   // const { name, email, phone } = body;
   try {
-    const updatePost = await Post.findByIdAndUpdate(contactId, body, {
+    const updatePost = await Contacts.findByIdAndUpdate(contactId, body, {
       new: true,
     });
 
@@ -56,7 +56,7 @@ const updateContact = async (contactId, body) => {
 const updateStatusContact = async (contactId, body) => {
   const { favorite } = body;
   try {
-    const updatePost = await Post.findByIdAndUpdate(
+    const updatePost = await Contacts.findByIdAndUpdate(
       contactId,
       { favorite },
       {

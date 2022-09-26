@@ -22,8 +22,8 @@ const contactsSchema = Schema(
   { versionKey: false, timestamps: true }
 );
 
-const Post = model('contacts', contactsSchema);
+const Contacts = model('contacts', contactsSchema);
 
 module.exports = {
-  Post,
+  Contacts,
 };
