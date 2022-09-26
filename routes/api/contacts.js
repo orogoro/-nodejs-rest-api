@@ -5,6 +5,7 @@ const router = express.Router();
 const {
   addPostValidation,
   addPutValidation,
+  PutchValidationFavorite,
 } = require('../../middlewares/validationMiddlewares');
 
 const {
@@ -13,6 +14,7 @@ const {
   removeContact,
   addContact,
   updateContact,
+  updateStatusContact,
 } = require('../../models/contacts');
 
 router.get('/', async (req, res, next) => {
@@ -42,6 +44,7 @@ router.get('/:contactId', async (req, res, next) => {
 router.post('/', addPostValidation, async (req, res, next) => {
   try {
     const body = req.body;
+    console.log(body);
 
     const newContact = await addContact(body);
 
@@ -82,5 +85,26 @@ router.put('/:contactId', addPutValidation, async (req, res, next) => {
     res.status(500).json({ error: e.message });
   }
 });
+
+router.patch(
+  '/:contactId/favorite',
+  PutchValidationFavorite,
+  async (req, res, next) => {
+    try {
+      const id = req.params.contactId;
+      const body = req.body;
+
+      const contact = await updateStatusContact(id, body);
+
+      if (!contact) {
+        return res.status(404).json({ message: 'Not found' });
+      }
+
+      res.status(200).json(contact);
+    } catch (error) {
+      res.status(500).json({ error: e.message });
+    }
+  }
+);
 
 module.exports = router;

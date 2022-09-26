@@ -40,4 +40,17 @@ module.exports = {
     }
     next();
   },
+
+  PutchValidationFavorite: (req, res, next) => {
+    const schema = Joi.object({
+      favorite: Joi.bool().required(),
+    });
+
+    const validationResult = schema.validate(req.body);
+
+    if (validationResult.error) {
+      return res.status(400).json({ message: 'missing field favorite' });
+    }
+    next();
+  },
 };
