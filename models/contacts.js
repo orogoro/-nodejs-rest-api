@@ -1,4 +1,4 @@
-const { Contacts } = require('../db/postModel');
+const { Contacts } = require('../db/contactsModel');
 
 const listContacts = async () => {
   try {

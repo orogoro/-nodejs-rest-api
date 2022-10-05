@@ -44,7 +44,6 @@ router.get('/:contactId', async (req, res, next) => {
 router.post('/', addPostValidation, async (req, res, next) => {
   try {
     const body = req.body;
-    console.log(body);
 
     const newContact = await addContact(body);
 
