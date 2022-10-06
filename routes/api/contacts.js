@@ -2,11 +2,7 @@ const e = require('express');
 const express = require('express');
 const router = express.Router();
 
-const {
-  addPostValidation,
-  addPutValidation,
-  PutchValidationFavorite,
-} = require('../../middlewares/validationMiddlewares');
+const { middlewaresContacts, auth } = require('../../middlewares');
 
 const {
   listContacts,
@@ -17,16 +13,18 @@ const {
   updateStatusContact,
 } = require('../../models/contacts');
 
-router.get('/', async (req, res, next) => {
+router.get('/', auth.auth, async (req, res, next) => {
   try {
-    const contacts = await listContacts();
+    const { _id: owner } = req.user;
+    const { page = 1, limit = 10, favorite } = req.query;
+    const contacts = await listContacts(owner, page, limit, favorite);
     res.status(200).json(contacts);
   } catch (error) {
     res.status(500).json({ error: e.message });
   }
 });
 
-router.get('/:contactId', async (req, res, next) => {
+router.get('/:contactId', auth.auth, async (req, res, next) => {
   try {
     const id = req.params.contactId;
     const contact = await getContactById(id);
@@ -41,20 +39,25 @@ router.get('/:contactId', async (req, res, next) => {
   }
 });
 
-router.post('/', addPostValidation, async (req, res, next) => {
-  try {
-    const body = req.body;
-    console.log(body);
+router.post(
+  '/',
+  auth.auth,
+  middlewaresContacts.addPostValidation,
+  async (req, res, next) => {
+    try {
+      const { _id: owner } = req.user;
+      const body = req.body;
 
-    const newContact = await addContact(body);
+      const newContact = await addContact(body, owner);
 
-    res.status(201).json(newContact);
-  } catch (error) {
-    res.status(500).json({ error: e.message });
+      res.status(201).json(newContact);
+    } catch (error) {
+      res.status(500).json({ error: e.message });
+    }
   }
-});
+);
 
-router.delete('/:contactId', async (req, res, next) => {
+router.delete('/:contactId', auth.auth, async (req, res, next) => {
   try {
     const id = req.params.contactId;
     const contact = await removeContact(id);
@@ -69,26 +72,32 @@ router.delete('/:contactId', async (req, res, next) => {
   }
 });
 
-router.put('/:contactId', addPutValidation, async (req, res, next) => {
-  try {
-    const id = req.params.contactId;
-    const body = req.body;
+router.put(
+  '/:contactId',
+  auth.auth,
+  middlewaresContacts.addPutValidation,
+  async (req, res, next) => {
+    try {
+      const id = req.params.contactId;
+      const body = req.body;
 
-    const contact = await updateContact(id, body);
+      const contact = await updateContact(id, body);
 
-    if (!contact) {
-      return res.status(404).json({ message: 'Not found' });
+      if (!contact) {
+        return res.status(404).json({ message: 'Not found' });
+      }
+
+      res.status(200).json(contact);
+    } catch (error) {
+      res.status(500).json({ error: e.message });
     }
-
-    res.status(200).json(contact);
-  } catch (error) {
-    res.status(500).json({ error: e.message });
   }
-});
+);
 
 router.patch(
   '/:contactId/favorite',
-  PutchValidationFavorite,
+  auth.auth,
+  middlewaresContacts.putchValidationFavorite,
   async (req, res, next) => {
     try {
       const id = req.params.contactId;

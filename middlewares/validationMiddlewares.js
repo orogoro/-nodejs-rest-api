@@ -41,7 +41,7 @@ module.exports = {
     next();
   },
 
-  PutchValidationFavorite: (req, res, next) => {
+  putchValidationFavorite: (req, res, next) => {
     const schema = Joi.object({
       favorite: Joi.bool().required(),
     });
