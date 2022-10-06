@@ -1,6 +1,6 @@
 // const mongoose = require('mongoose');
 
-const { Schema, model, SchemaTypes } = require('mongoose');
+const { Schema, model } = require('mongoose');
 
 const usersSchema = Schema(
   {
@@ -21,10 +21,6 @@ const usersSchema = Schema(
     token: {
       type: String,
       default: null,
-    },
-    owner: {
-      type: SchemaTypes.ObjectId,
-      ref: 'user',
     },
   },
   { versionKey: false, timestamps: true }

@@ -1,8 +1,14 @@
 const { Contacts } = require('../db/contactsModel');
 
-const listContacts = async () => {
+const listContacts = async (owner, page, limit, favorite) => {
   try {
-    const data = await Contacts.find({});
+    const skip = (page - 1) * limit;
+    const data = await Contacts.find(
+      favorite ? { owner, favorite } : { owner },
+      '-createdAt -updatedAt',
+      { skip, limit }
+    ).populate('owner', 'email subscription');
+
     return data;
   } catch (error) {
     console.log(error);
@@ -28,10 +34,10 @@ const removeContact = async (contactId) => {
   }
 };
 
-const addContact = async (body) => {
+const addContact = async (body, owner) => {
   const { name, email, phone } = body;
   try {
-    const newContact = new Contacts({ name, email, phone });
+    const newContact = new Contacts({ name, email, phone, owner });
     await newContact.save();
 
     return newContact;

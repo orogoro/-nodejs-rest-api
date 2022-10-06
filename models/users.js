@@ -24,11 +24,39 @@ const login = async (user) => {
   };
 
   const token = jwt.sign(payload, SECRET_KEY, { expiresIn: '2h' });
+  await Users.findByIdAndUpdate(user._id, { token });
 
   return token;
+};
+
+const logout = async (user) => {
+  const { _id } = user;
+
+  const result = await Users.findByIdAndUpdate(_id, { token: '' });
+
+  return result;
+};
+
+const getCurrent = async (user) => {
+  return user;
+};
+
+const updateStatusUser = async (owner, subscription) => {
+  const updateUser = await Users.findByIdAndUpdate(
+    owner,
+    { subscription },
+    {
+      new: true,
+    }
+  );
+
+  return updateUser;
 };
 
 module.exports = {
   register,
   login,
+  getCurrent,
+  logout,
+  updateStatusUser,
 };
