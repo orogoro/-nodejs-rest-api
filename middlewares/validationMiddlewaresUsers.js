@@ -47,4 +47,20 @@ module.exports = {
     }
     next();
   },
+
+  // uploadValidationAvatars: (req, res, next) => {
+  //   const schema = Joi.object({
+  //     subscription: Joi.string()
+  //       .valid('starter', 'pro', 'business')
+  //       .default('starter')
+  //       .required(),
+  //   });
+
+  //   const validationResult = schema.validate(req.body);
+
+  //   if (validationResult.error) {
+  //     return res.status(400).json({ message: 'missing field subscription' });
+  //   }
+  //   next();
+  // },
 };

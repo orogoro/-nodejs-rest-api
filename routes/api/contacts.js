@@ -13,7 +13,7 @@ const {
   updateStatusContact,
 } = require('../../models/contacts');
 
-router.get('/', auth.auth, async (req, res, next) => {
+router.get('/', auth, async (req, res, next) => {
   try {
     const { _id: owner } = req.user;
     const { page = 1, limit = 10, favorite } = req.query;
@@ -24,7 +24,7 @@ router.get('/', auth.auth, async (req, res, next) => {
   }
 });
 
-router.get('/:contactId', auth.auth, async (req, res, next) => {
+router.get('/:contactId', auth, async (req, res, next) => {
   try {
     const id = req.params.contactId;
     const contact = await getContactById(id);
@@ -41,7 +41,7 @@ router.get('/:contactId', auth.auth, async (req, res, next) => {
 
 router.post(
   '/',
-  auth.auth,
+  auth,
   middlewaresContacts.addPostValidation,
   async (req, res, next) => {
     try {
@@ -57,7 +57,7 @@ router.post(
   }
 );
 
-router.delete('/:contactId', auth.auth, async (req, res, next) => {
+router.delete('/:contactId', auth, async (req, res, next) => {
   try {
     const id = req.params.contactId;
     const contact = await removeContact(id);
@@ -74,7 +74,7 @@ router.delete('/:contactId', auth.auth, async (req, res, next) => {
 
 router.put(
   '/:contactId',
-  auth.auth,
+  auth,
   middlewaresContacts.addPutValidation,
   async (req, res, next) => {
     try {
@@ -96,7 +96,7 @@ router.put(
 
 router.patch(
   '/:contactId/favorite',
-  auth.auth,
+  auth,
   middlewaresContacts.putchValidationFavorite,
   async (req, res, next) => {
     try {
