@@ -17,6 +17,8 @@ const {
   logout,
   updateStatusUser,
   updateAvatar,
+  verifyEmail,
+  verify,
 } = require('../../models/users');
 
 const { MiddlewaresUsers, auth, upload } = require('../../middlewares');
@@ -35,13 +37,13 @@ router.post(
       }
 
       const newUser = await register(req.body);
-      console.log(newUser.avatarURL);
 
       res.status(201).json({
         user: {
           email: newUser.email,
           subscription: newUser.subscription,
           avatarURL: newUser.avatarURL,
+          verificationToken: newUser.verificationToken,
         },
       });
     } catch (error) {
@@ -57,8 +59,10 @@ router.post(
     const { email, password } = req.body;
 
     const user = await Users.findOne({ email });
-    if (!user) {
-      return res.status(401).json({ message: 'Email or password is wrong' });
+    if (!user || !user.verify) {
+      return res.status(401).json({
+        message: 'Email is wrong or not verify, or password is wrong',
+      });
     }
 
     const passwordCompare = await bcrypt.compare(password, user.password);
@@ -160,6 +164,49 @@ router.patch(
       await fs.unlink(tempUpload);
       res.status(500).json({ error: e.message });
     }
+  }
+);
+
+router.get('/verify/:verificationToken', async (req, res, next) => {
+  const { verificationToken } = req.params;
+
+  const user = await Users.findOne({ verificationToken });
+
+  if (!user) {
+    return res.status(404).json({ message: 'User not found' });
+  }
+
+  await verifyEmail(user);
+
+  res.status(200).json({
+    message: 'Verification successful',
+  });
+});
+
+router.post(
+  '/verify',
+  MiddlewaresUsers.validationVerify,
+  async (req, res, next) => {
+    const { email } = req.body;
+
+    const user = await Users.findOne({ email });
+    if (!user) {
+      return res.status(401).json({
+        message: 'Email is wrong',
+      });
+    }
+
+    if (user.verify) {
+      return res.status(400).json({
+        message: 'Verification has already been passed',
+      });
+    }
+
+    await verify(user);
+
+    res.status(200).json({
+      message: 'Verification email sent',
+    });
   }
 );
 

@@ -48,19 +48,16 @@ module.exports = {
     next();
   },
 
-  // uploadValidationAvatars: (req, res, next) => {
-  //   const schema = Joi.object({
-  //     subscription: Joi.string()
-  //       .valid('starter', 'pro', 'business')
-  //       .default('starter')
-  //       .required(),
-  //   });
+  validationVerify: (req, res, next) => {
+    const schema = Joi.object({
+      email: Joi.string().required(),
+    });
 
-  //   const validationResult = schema.validate(req.body);
+    const validationResult = schema.validate(req.body);
 
-  //   if (validationResult.error) {
-  //     return res.status(400).json({ message: 'missing field subscription' });
-  //   }
-  //   next();
-  // },
+    if (validationResult.error) {
+      return res.status(400).json({ message: 'missing required field email' });
+    }
+    next();
+  },
 };
